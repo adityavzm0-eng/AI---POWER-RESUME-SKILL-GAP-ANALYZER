@@ -14,10 +14,10 @@ Proficient in data preprocessing, EDA, statistical analysis, feature engineering
   resumeFileName: "Siddeswararao_Botcha_Resume.pdf",
   socials: {
     github: {
-      url: "https://github.com",
-      handle: "GitHub",
-      isPlaceholder: true,
-      note: "Connect your GitHub profile"
+      url: "https://github.com/adityavzm0-eng",
+      handle: "adityavzm0-eng",
+      isPlaceholder: false,
+      note: "github.com/adityavzm0-eng"
     },
     linkedin: {
       url: "https://linkedin.com",
