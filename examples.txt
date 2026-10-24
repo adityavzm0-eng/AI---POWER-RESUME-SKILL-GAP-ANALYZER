@@ -1,0 +1,28 @@
+VOTEHUB EXAMPLE POLLS
+====================
+
+EXAMPLE 1: Favorite Programming Language?
+Description: Which language do you prefer for building backend services and apps?
+Options:
+- Python
+- JavaScript/TypeScript
+- Go
+- Rust
+- C++
+
+EXAMPLE 2: Best Destination for Team Retreat?
+Description: Where should we go for our next annual company/team building getaway?
+Options:
+- Beach Resort
+- Mountain Cabin
+- Bustling City (e.g., Tokyo)
+- Countryside Villa
+
+EXAMPLE 3: Choose Your Superpower!
+Description: If you could have exactly one superpower, what would it be?
+Options:
+- Teleportation
+- Time Travel
+- Invisibility
+- Flight
+- Telekinesis

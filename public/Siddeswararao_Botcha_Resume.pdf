@@ -1,0 +1,114 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 3076 >>
+stream
+BT
+/F1 8.5 Tf
+35 765 Td
+11.5 TL
+(Siddeswararao Botcha) Tj
+T*
+(Phone: +91 8186017368 | Email: siddeswararaobotcha@gmail.com | LinkedIn | GitHub) Tj
+T*
+(Title: Data Scientist & Analyst | Machine Learning | AI, LLMs & RAG) Tj
+T*
+() Tj
+T*
+(--- PROFESSIONAL SUMMARY ---) Tj
+T*
+(Computer Science graduate skilled in Python, SQL, Power BI, Data Science, Machine Learning, NLP, CV Basics,) Tj
+T*
+(and Generative AI. Experienced in developing intelligent chatbots using Google Gemini & RAG, real-time) Tj
+T*
+(webcam face detection with OpenCV, core Banking Management Systems with Python & SQL, and interactive) Tj
+T*
+(dashboards in Power BI & Streamlit with Render deployments.) Tj
+T*
+() Tj
+T*
+(--- TECHNICAL SKILLS ---) Tj
+T*
+(* Programming & Databases: Python, SQL, MySQL Workbench) Tj
+T*
+(* Data Analytics & BI: Power BI, Pandas, NumPy, EDA, Statistics, Matplotlib, Seaborn) Tj
+T*
+(* Machine Learning: Scikit-learn, Regression, Classification, Clustering, Feature Engineering, Model Evaluation) Tj
+T*
+(* AI, LLMs & NLP: LLMs, RAG Concepts, Chatbot Development, Prompt Engineering, NLP, BART Transformers) Tj
+T*
+(* Computer Vision: CV Basics, OpenCV, Live Face Detection, Image Processing) Tj
+T*
+(* Deployment & Tools: Streamlit \(ML Frontend\), Render \(Deployment\), Flask \(REST APIs\), Git, GitHub) Tj
+T*
+() Tj
+T*
+(--- PROFESSIONAL INTERNSHIPS ---) Tj
+T*
+(1. Cognifyz IT Solutions Pvt. Ltd. | Machine Learning Intern [02/09/2026 - 02/10/2026]) Tj
+T*
+(   - Intern ID: CTI/A1/C414330. Built and evaluated ML models with Python & Scikit-learn.) Tj
+T*
+(2. Datapro Computers Pvt. Ltd. \(APSCHE & NSDC\) | Full Stack Python Intern [01.12.2025 - 07.03.2026]) Tj
+T*
+(   - Certificate: DIC0011194398. Built full-stack Python software with relational SQL database backends.) Tj
+T*
+(3. BDreamz Global Solutions \(Chennai, India\) | Data Science & AI Intern [Apr 2025 - Aug 2025]) Tj
+T*
+(   - Developed end-to-end data preprocessing pipelines, EDA, and Scikit-learn predictive models.) Tj
+T*
+() Tj
+T*
+(--- FEATURED PROJECTS ---) Tj
+T*
+(1. AI-Powered RAG Chatbot | Python, Flask, React, Gemini API, RAG Concepts, Render) Tj
+T*
+(2. Banking Management System | Python, SQL, MySQL Workbench, ACID Transactions, Ledger Auditing) Tj
+T*
+(3. RBI & Commercial Banking Analytics Dashboard | Power BI, Python, Streamlit, Public vs Private Banks) Tj
+T*
+(4. Live Face Detection System | Python, OpenCV, CV Basics, Haar Cascades, Streamlit ML Frontend) Tj
+T*
+(5. Employee Salary Growth Prediction | Python, Scikit-learn, Random Forest \(85% R2 Score\), Streamlit) Tj
+T*
+(6. AI Text Summarization System | Python, NLP, BART Transformers, PyTorch, Flask REST API) Tj
+T*
+() Tj
+T*
+(--- EDUCATION & CERTIFICATIONS ---) Tj
+T*
+(* Aditya Degree & P.G College [Jun 2023 - May 2026] | Computer Science - B.Sc. | CGPA: 8.0 / 10.0) Tj
+T*
+(* Machine Learning Internship Certificate - Cognifyz IT Solutions \(CTI/A1/C414330\)) Tj
+T*
+(* Full Stack Python Internship Certificate - Datapro Computers \(DIC0011194398\)) Tj
+T*
+(* Generative AI Learning Path - Google Cloud Skills Boost | Python Essentials - Cisco) Tj
+T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000003369 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3439
+%%EOF

@@ -1,0 +1,33 @@
+VOTEHUB - HOW TO CREATE A POLL
+==============================
+
+METHOD 1: USING THE ADMIN DASHBOARD
+----------------------------------
+1. Open http://localhost:5000/admin in your web browser.
+2. Click the "+ Create Poll" button.
+3. Fill in the form:
+   - Title: The main question of your poll (Required).
+   - Description: Extra context for voters (Optional).
+   - Options: The answers voters can select. Click "+ Add" to add more options (Min 2 required).
+4. Click "Create". The page will reload and your poll is ready!
+
+METHOD 2: USING THE REST API
+----------------------------
+Send a POST request to: http://localhost:5000/api/polls
+
+Headers:
+Content-Type: application/json
+
+Body (JSON format):
+{
+  "title": "Your Poll Question",
+  "description": "Optional poll description",
+  "options": [
+    "Option 1",
+    "Option 2",
+    "Option 3"
+  ]
+}
+
+Example Curl Command:
+curl -X POST http://localhost:5000/api/polls -H "Content-Type: application/json" -d "{\"title\": \"Favorite Beverage?\", \"options\": [\"Coffee\", \"Tea\", \"Water\"]}"
