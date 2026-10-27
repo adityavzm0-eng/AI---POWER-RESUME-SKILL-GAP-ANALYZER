@@ -165,9 +165,13 @@ async def generate_ai_insights(
     Attempts calling the LLM API using user-configured or env-configured API key.
     If unavailable or invalid, seamlessly falls back to the deterministic engine.
     """
-    api_key = user_api_key or os.getenv("AI_API_KEY") or os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY")
-    active_provider = provider or os.getenv("AI_PROVIDER", "gemini").lower()
-    active_model = model_name or os.getenv("AI_MODEL", "gemini-1.5-flash")
+    api_key = user_api_key or os.getenv("AI_API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("GEMINI_API_KEY")
+    active_provider = (
+        provider or 
+        os.getenv("AI_PROVIDER") or 
+        ("openai" if api_key and api_key.startswith("sk-") else "gemini")
+    ).lower()
+    active_model = model_name or os.getenv("AI_MODEL") or ("gpt-4o-mini" if "openai" in active_provider else "gemini-1.5-flash")
 
     # If no key or mock key format, use deterministic generator
     if not api_key:

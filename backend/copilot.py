@@ -309,39 +309,72 @@ async def ask_copilot(
     df: pd.DataFrame,
     profile: Dict[str, Any]
 ) -> CopilotResponse:
-    # First, test if question can be answered deterministically with exact precision
+    # First, compute deterministic factual answer using Pandas calculations
     det_resp = process_copilot_deterministic(request.query, df, profile)
     
-    # If the user has an AI API key configured and the question was generic or conversational, try LLM enrichment
-    api_key = request.user_api_key or os.getenv("AI_API_KEY") or os.getenv("GEMINI_API_KEY")
+    # If the user has an AI API key configured and the question was conversational/overview, attempt LLM enrichment
+    api_key = request.user_api_key or os.getenv("AI_API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("GEMINI_API_KEY")
+    active_provider = (
+        request.provider or 
+        os.getenv("AI_PROVIDER") or 
+        ("openai" if api_key and api_key.startswith("sk-") else "gemini")
+    ).lower()
+    active_model = request.model_name or os.getenv("AI_MODEL") or ("gpt-4o-mini" if "openai" in active_provider else "gemini-1.5-flash")
+
     if api_key and not det_resp.chart_suggestion:
-        try:
-            summary = {
-                "rows": len(df),
-                "cols": list(df.columns),
-                "query": request.query,
-                "profile_overview": profile.get("overview"),
-                "sample_stats": {
-                    k: v.get("stats") for k, v in list(profile.get("columns", {}).items())[:6] if "stats" in v
+        summary = {
+            "rows": len(df),
+            "cols": list(df.columns),
+            "query": request.query,
+            "profile_overview": profile.get("overview"),
+            "sample_stats": {
+                k: v.get("stats") for k, v in list(profile.get("columns", {}).items())[:6] if "stats" in v
+            }
+        }
+        system_prompt = (
+            "You are InsightAI Copilot, a sharp, senior data analyst and BI architect. "
+            "Answer the user's question with precise Markdown, citing factual column names and exact numbers. "
+            "Never invent columns or numbers outside the dataset schema. "
+            "Distinguish proven data facts from hypotheses."
+        )
+
+        if "openai" in active_provider or (api_key and api_key.startswith("sk-")):
+            try:
+                url = "https://api.openai.com/v1/chat/completions"
+                headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+                payload = {
+                    "model": active_model if "gpt" in active_model else "gpt-4o-mini",
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": f"Context:\n{json.dumps(summary)}\n\nUser Question: {request.query}"}
+                    ],
+                    "temperature": 0.2
                 }
-            }
-            system_prompt = (
-                "You are InsightAI Copilot, a sharp, data-driven analytics assistant. "
-                "Answer the user's question with precise Markdown, citing factual column names and exact numbers. "
-                "Never invent columns or numbers outside the dataset schema."
-            )
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-            payload = {
-                "contents": [
-                    {"parts": [{"text": f"{system_prompt}\n\nContext:\n{json.dumps(summary)}\n\nUser Question: {request.query}"}]}
-                ]
-            }
-            async with httpx.AsyncClient(timeout=8.0) as client:
-                res = await client.post(url, json=payload)
-                if res.status_code == 200:
-                    text_resp = res.json()["candidates"][0]["content"]["parts"][0]["text"]
-                    det_resp.answer = text_resp
-        except Exception:
-            pass # Gracefully keep the deterministic answer
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    res = await client.post(url, headers=headers, json=payload)
+                    if res.status_code == 200:
+                        text_resp = res.json()["choices"][0]["message"]["content"]
+                        det_resp.answer = text_resp
+                    else:
+                        logger.warning(f"OpenAI Copilot returned status {res.status_code}")
+            except Exception as e:
+                logger.warning(f"OpenAI Copilot request failed: {e}")
+        elif "gemini" in active_provider:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{active_model}:generateContent?key={api_key}"
+                payload = {
+                    "contents": [
+                        {"parts": [{"text": f"{system_prompt}\n\nContext:\n{json.dumps(summary)}\n\nUser Question: {request.query}"}]}
+                    ]
+                }
+                async with httpx.AsyncClient(timeout=8.0) as client:
+                    res = await client.post(url, json=payload)
+                    if res.status_code == 200:
+                        text_resp = res.json()["candidates"][0]["content"]["parts"][0]["text"]
+                        det_resp.answer = text_resp
+                    else:
+                        logger.warning(f"Gemini Copilot returned status {res.status_code}")
+            except Exception as e:
+                logger.warning(f"Gemini Copilot request failed: {e}")
             
     return det_resp

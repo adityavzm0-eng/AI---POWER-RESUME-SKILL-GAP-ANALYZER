@@ -1,14 +1,14 @@
 {
-  "name": "insightai-dashboard-generator",
+  "name": "skillsync-ai",
   "private": true,
-  "version": "1.0.0",
-  "description": "InsightAI — AI-Powered Smart Dashboard Generator",
+  "version": "2.0.0",
+  "description": "SkillSync AI — Resume Intelligence & Career Growth Platform",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "backend": "python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload"
+    "backend": ".\\.venv\\Scripts\\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload"
   },
   "dependencies": {
     "clsx": "^2.1.1",

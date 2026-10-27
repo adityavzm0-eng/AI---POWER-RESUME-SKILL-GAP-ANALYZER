@@ -94,9 +94,9 @@ export const DashboardProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isThinking, setIsThinking] = useState(false);
 
-  // User provided API key default
+  // User provided API key (clean default without exposed keys)
   const [apiKey, setApiKeyState] = useState<string>(() => {
-    return localStorage.getItem('insightai_api_key') || 'key_Jf5XMGG0ZZrpuyLU';
+    return localStorage.getItem('insightai_api_key') || '';
   });
 
   const [toast, setToast] = useState<{ message: string; type: 'info' | 'success' | 'error' } | null>(null);

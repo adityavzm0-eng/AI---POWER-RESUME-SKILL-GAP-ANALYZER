@@ -262,25 +262,38 @@ def generate_dashboard(df: pd.DataFrame, profile: Dict[str, Any]) -> Dict[str, A
             "trend_positive": True
         })
 
-    # 3. Dynamic Charts Recommendation
+    # 3. Dynamic Charts Recommendation (At least 12 Relationship & Combined Dashboards)
     charts = []
 
-    # Chart 1: Time Series Trend (if Date exists)
+    # Chart 1: Time Series Primary Trend (Area)
     if primary_date and primary_num:
         trend_data = compute_chart_data(df, primary_date, primary_num, aggregation="sum")
         charts.append({
             "id": "chart_time_trend",
-            "title": f"{primary_num.replace('_', ' ')} Trend Over Time",
+            "title": f"{primary_num.replace('_', ' ')} Chronological Momentum",
             "type": "area",
             "x_column": primary_date,
             "y_column": primary_num,
             "aggregation": "sum",
             "data": trend_data,
-            "description": f"Temporal progression of cumulative {primary_num} grouped by period.",
+            "description": f"Cumulative temporal trajectory of {primary_num} aggregated chronologically.",
+            "width": "full"
+        })
+    elif primary_cat and primary_num:
+        trend_data = compute_chart_data(df, primary_cat, primary_num, aggregation="sum", limit=12)
+        charts.append({
+            "id": "chart_time_trend",
+            "title": f"{primary_num.replace('_', ' ')} Portfolio Progression",
+            "type": "area",
+            "x_column": primary_cat,
+            "y_column": primary_num,
+            "aggregation": "sum",
+            "data": trend_data,
+            "description": f"Overall distribution of {primary_num} across portfolio cohorts.",
             "width": "full"
         })
 
-    # Chart 2: Category Breakdown (Bar Chart)
+    # Chart 2: Primary Category Contribution (Bar)
     if primary_cat and primary_num:
         bar_data = compute_chart_data(df, primary_cat, primary_num, aggregation="sum", limit=10)
         charts.append({
@@ -295,14 +308,14 @@ def generate_dashboard(df: pd.DataFrame, profile: Dict[str, Any]) -> Dict[str, A
             "width": "half"
         })
 
-    # Chart 3: Proportion / Share (Donut / Pie Chart)
+    # Chart 3: Proportional Market Share & Segment Distribution (Pie)
     pie_target_cat = secondary_cat if secondary_cat else primary_cat
     if pie_target_cat:
         pie_measure = primary_num if primary_num else None
         pie_data = compute_chart_data(df, pie_target_cat, pie_measure, aggregation="sum" if pie_measure else "count", limit=6)
         charts.append({
             "id": "chart_pie_distribution",
-            "title": f"Distribution by {pie_target_cat.replace('_', ' ')}",
+            "title": f"Market Share Distribution by {pie_target_cat.replace('_', ' ')}",
             "type": "pie",
             "x_column": pie_target_cat,
             "y_column": pie_measure,
@@ -312,7 +325,7 @@ def generate_dashboard(df: pd.DataFrame, profile: Dict[str, Any]) -> Dict[str, A
             "width": "half"
         })
 
-    # Chart 4: Correlation / Relationship (Scatter Plot)
+    # Chart 4: Core Relationship Dashboard #1 (Scatter Plot)
     correlations = profile.get("correlations", [])
     if correlations and len(correlations) > 0:
         top_corr = correlations[0]
@@ -320,55 +333,113 @@ def generate_dashboard(df: pd.DataFrame, profile: Dict[str, Any]) -> Dict[str, A
         c2 = top_corr["col2"]
         sample_pts = df[[c1, c2]].dropna().head(120)
         scatter_data = [
-            {"name": f"Pt {idx+1}", c1: round(float(r[c1]), 2), c2: round(float(r[c2]), 2)}
+            {"name": f"Obs #{idx+1}", c1: round(float(r[c1]), 2), c2: round(float(r[c2]), 2)}
             for idx, r in sample_pts.iterrows()
         ]
         charts.append({
-            "id": "chart_scatter_correlation",
-            "title": f"Relationship: {c1.replace('_', ' ')} vs {c2.replace('_', ' ')}",
+            "id": "chart_relationship_scatter_1",
+            "title": f"Core Relationship: {c1.replace('_', ' ')} vs {c2.replace('_', ' ')}",
             "type": "scatter",
             "x_column": c1,
             "y_column": c2,
             "aggregation": "none",
             "data": scatter_data,
-            "description": f"Statistical correlation r = {top_corr['r']:+.2f}. Note: Association does not imply causation.",
+            "description": f"Observed correlation (Pearson r = {top_corr['r']:+.2f}). Direct relationship mapping sensitivity.",
             "width": "half"
         })
     elif len(num_cols) >= 2:
         c1, c2 = num_cols[0], num_cols[1]
         sample_pts = df[[c1, c2]].dropna().head(100)
         scatter_data = [
-            {"name": f"Pt {idx+1}", c1: round(float(r[c1]), 2), c2: round(float(r[c2]), 2)}
+            {"name": f"Obs #{idx+1}", c1: round(float(r[c1]), 2), c2: round(float(r[c2]), 2)}
             for idx, r in sample_pts.iterrows()
         ]
         charts.append({
-            "id": "chart_scatter_correlation",
-            "title": f"{c1.replace('_', ' ')} vs {c2.replace('_', ' ')}",
+            "id": "chart_relationship_scatter_1",
+            "title": f"Core Relationship: {c1.replace('_', ' ')} vs {c2.replace('_', ' ')}",
             "type": "scatter",
             "x_column": c1,
             "y_column": c2,
             "aggregation": "none",
             "data": scatter_data,
-            "description": f"Cross-variable scatter comparison.",
+            "description": f"Bi-variate cross relationship between {c1} and {c2}.",
             "width": "half"
         })
 
-    # Chart 5: Secondary Numerical Comparison or Top Ranking
-    if secondary_num and primary_cat:
-        bar2_data = compute_chart_data(df, primary_cat, secondary_num, aggregation="avg", limit=8)
+    # Chart 5: Tradeoff Relationship Dashboard #2 (Scatter Plot)
+    if len(correlations) > 1:
+        corr2 = correlations[1]
+        c3 = corr2["col1"]
+        c4 = corr2["col2"]
+        sample_pts2 = df[[c3, c4]].dropna().head(120)
+        scatter_data2 = [
+            {"name": f"Obs #{idx+1}", c3: round(float(r[c3]), 2), c4: round(float(r[c4]), 2)}
+            for idx, r in sample_pts2.iterrows()
+        ]
         charts.append({
-            "id": "chart_secondary_bar",
-            "title": f"Average {secondary_num.replace('_', ' ')} by {primary_cat.replace('_', ' ')}",
+            "id": "chart_relationship_scatter_2",
+            "title": f"Tradeoff Relationship: {c3.replace('_', ' ')} vs {c4.replace('_', ' ')}",
+            "type": "scatter",
+            "x_column": c3,
+            "y_column": c4,
+            "aggregation": "none",
+            "data": scatter_data2,
+            "description": f"Secondary cross-factor relationship (r = {corr2['r']:+.2f}).",
+            "width": "half"
+        })
+    elif len(num_cols) >= 3:
+        c3, c4 = num_cols[1], num_cols[2]
+        sample_pts2 = df[[c3, c4]].dropna().head(100)
+        scatter_data2 = [
+            {"name": f"Obs #{idx+1}", c3: round(float(r[c3]), 2), c4: round(float(r[c4]), 2)}
+            for idx, r in sample_pts2.iterrows()
+        ]
+        charts.append({
+            "id": "chart_relationship_scatter_2",
+            "title": f"Tradeoff Relationship: {c3.replace('_', ' ')} vs {c4.replace('_', ' ')}",
+            "type": "scatter",
+            "x_column": c3,
+            "y_column": c4,
+            "aggregation": "none",
+            "data": scatter_data2,
+            "description": f"Tradeoff metric dynamics across {c3} and {c4}.",
+            "width": "half"
+        })
+    elif primary_num and primary_cat:
+        # Scatter of Primary Num vs Row Index
+        sample_pts2 = df[[primary_num]].dropna().head(100)
+        scatter_data2 = [
+            {"name": f"Obs #{idx+1}", "index": idx+1, primary_num: round(float(r[primary_num]), 2)}
+            for idx, r in sample_pts2.iterrows()
+        ]
+        charts.append({
+            "id": "chart_relationship_scatter_2",
+            "title": f"Dispersion Spectrum: {primary_num.replace('_', ' ')}",
+            "type": "scatter",
+            "x_column": "index",
+            "y_column": primary_num,
+            "aggregation": "none",
+            "data": scatter_data2,
+            "description": f"Individual observation dispersion mapping of {primary_num}.",
+            "width": "half"
+        })
+
+    # Chart 6: Efficiency & Normalized Average (Bar)
+    if primary_cat and primary_num:
+        bar_avg_data = compute_chart_data(df, primary_cat, primary_num, aggregation="avg", limit=8)
+        charts.append({
+            "id": "chart_efficiency_average",
+            "title": f"Efficiency Benchmark: Avg {primary_num.replace('_', ' ')} by {primary_cat.replace('_', ' ')}",
             "type": "bar",
             "x_column": primary_cat,
-            "y_column": secondary_num,
+            "y_column": primary_num,
             "aggregation": "avg",
-            "data": bar2_data,
-            "description": f"Normalized departmental or segment performance by {secondary_num}.",
+            "data": bar_avg_data,
+            "description": f"Normalized unit yield and average performance across {primary_cat}.",
             "width": "half"
         })
 
-    # Chart 6: Distribution Histogram
+    # Chart 7: Numerical Value Distribution Histogram (Bar)
     if primary_num:
         hist_info = profile.get("columns", {}).get(primary_num, {}).get("stats", {}).get("histogram", [])
         if hist_info:
@@ -381,7 +452,172 @@ def generate_dashboard(df: pd.DataFrame, profile: Dict[str, Any]) -> Dict[str, A
                 "y_column": "count",
                 "aggregation": "count",
                 "data": hist_data,
-                "description": f"Frequency distribution across value buckets for {primary_num}.",
+                "description": f"Frequency density across 10 statistical bins for {primary_num}.",
+                "width": "half"
+            })
+
+    # Chart 8: Multi-Segment Cohort Breakdown (Bar)
+    target_dim2 = secondary_cat if secondary_cat and secondary_cat != primary_cat else (prioritized_cats[2] if len(prioritized_cats) > 2 else primary_cat)
+    if target_dim2:
+        m2_data = compute_chart_data(df, target_dim2, (secondary_num or primary_num or None), aggregation="sum", limit=8)
+        charts.append({
+            "id": "chart_secondary_segment_breakdown",
+            "title": f"Cohort Breakdown: {(secondary_num or primary_num or 'Count').replace('_', ' ')} across {target_dim2.replace('_', ' ')}",
+            "type": "bar",
+            "x_column": target_dim2,
+            "y_column": (secondary_num or primary_num or None),
+            "aggregation": "sum",
+            "data": m2_data,
+            "description": f"Comparative performance analysis across {target_dim2} cohorts.",
+            "width": "half"
+        })
+
+    # Chart 9: Volume & Frequency Dynamics (Line)
+    if primary_cat:
+        count_data = compute_chart_data(df, primary_cat, aggregation="count", limit=10)
+        charts.append({
+            "id": "chart_volume_vs_value_ratio",
+            "title": f"Transaction Volume & Record Density by {primary_cat.replace('_', ' ')}",
+            "type": "line",
+            "x_column": primary_cat,
+            "y_column": "count",
+            "aggregation": "count",
+            "data": count_data,
+            "description": f"Activity density and order count distribution across {primary_cat}.",
+            "width": "half"
+        })
+
+    # Chart 10: Pareto Top 10 High-Yield Entities (Bar)
+    if primary_cat and primary_num:
+        pareto_data = compute_chart_data(df, primary_cat, primary_num, aggregation="sum", limit=10, sort_desc=True)
+        charts.append({
+            "id": "chart_pareto_top_performers",
+            "title": f"Pareto Ranking: Top 10 High-Yield {primary_cat.replace('_', ' ')}",
+            "type": "bar",
+            "x_column": primary_cat,
+            "y_column": primary_num,
+            "aggregation": "sum",
+            "data": pareto_data,
+            "description": f"Concentrated yield ranking isolating top revenue and impact contributors.",
+            "width": "half"
+        })
+
+    # Chart 11: Sub-Cohort Density & Share (Pie)
+    if len(prioritized_cats) > 2:
+        tert_cat = prioritized_cats[2]
+        tert_data = compute_chart_data(df, tert_cat, aggregation="count", limit=6)
+        charts.append({
+            "id": "chart_subcohort_share",
+            "title": f"Sub-Cohort Share: {tert_cat.replace('_', ' ')}",
+            "type": "pie",
+            "x_column": tert_cat,
+            "y_column": None,
+            "aggregation": "count",
+            "data": tert_data,
+            "description": f"Proportional weight analysis for {tert_cat}.",
+            "width": "half"
+        })
+    elif secondary_cat:
+        sec_pie = compute_chart_data(df, secondary_cat, aggregation="count", limit=6)
+        charts.append({
+            "id": "chart_subcohort_share",
+            "title": f"Sub-Cohort Proportions: {secondary_cat.replace('_', ' ')}",
+            "type": "pie",
+            "x_column": secondary_cat,
+            "y_column": None,
+            "aggregation": "count",
+            "data": sec_pie,
+            "description": f"Relative density across {secondary_cat} cohorts.",
+            "width": "half"
+        })
+    elif primary_cat:
+        cat_pie = compute_chart_data(df, primary_cat, aggregation="count", limit=5)
+        charts.append({
+            "id": "chart_subcohort_share",
+            "title": f"Segment Allocation: {primary_cat.replace('_', ' ')}",
+            "type": "pie",
+            "x_column": primary_cat,
+            "y_column": None,
+            "aggregation": "count",
+            "data": cat_pie,
+            "description": f"Cohort composition of {primary_cat}.",
+            "width": "half"
+        })
+
+    # Chart 12: Outlier Variance Spectrum & Anomaly Mapping (Scatter)
+    target_outlier_col = primary_num or (num_cols[0] if num_cols else None)
+    if target_outlier_col and target_outlier_col in df.columns:
+        s_out = pd.to_numeric(df[target_outlier_col], errors='coerce').dropna()
+        q1 = float(s_out.quantile(0.25))
+        q3 = float(s_out.quantile(0.75))
+        iqr = q3 - q1
+        upper_b = round(q3 + 1.5 * iqr, 2)
+        lower_b = round(max(0, q1 - 1.5 * iqr), 2)
+        
+        sample_spectrum = df.sample(min(80, len(df)), random_state=42) if len(df) > 80 else df
+        spectrum_data = [
+            {
+                "name": f"Pt #{i+1}",
+                "Observation": i + 1,
+                target_outlier_col: round(float(row[target_outlier_col]), 2)
+            }
+            for i, (_, row) in enumerate(sample_spectrum.iterrows())
+            if pd.notna(row[target_outlier_col])
+        ]
+        charts.append({
+            "id": "chart_outlier_variance_spectrum",
+            "title": f"Variance Spectrum: {target_outlier_col.replace('_', ' ')} [IQR Limits: {lower_b} - {upper_b}]",
+            "type": "scatter",
+            "x_column": "Observation",
+            "y_column": target_outlier_col,
+            "aggregation": "none",
+            "data": spectrum_data,
+            "description": f"Sample distribution showing data dispersion and potential outliers beyond IQR bounds.",
+            "width": "half"
+        })
+
+    # Chart 13: Secondary Metric Progression or Distribution (Line/Bar)
+    if secondary_num and primary_date:
+        trend2_data = compute_chart_data(df, primary_date, secondary_num, aggregation="sum")
+        charts.append({
+            "id": "chart_secondary_metric_timeline",
+            "title": f"{secondary_num.replace('_', ' ')} Chronological Evolution",
+            "type": "line",
+            "x_column": primary_date,
+            "y_column": secondary_num,
+            "aggregation": "sum",
+            "data": trend2_data,
+            "description": f"Historical trajectory of {secondary_num} across recording intervals.",
+            "width": "half"
+        })
+    elif secondary_num and primary_cat:
+        sec_bar = compute_chart_data(df, primary_cat, secondary_num, aggregation="sum", limit=8)
+        charts.append({
+            "id": "chart_secondary_metric_timeline",
+            "title": f"Cumulative {secondary_num.replace('_', ' ')} by {primary_cat.replace('_', ' ')}",
+            "type": "bar",
+            "x_column": primary_cat,
+            "y_column": secondary_num,
+            "aggregation": "sum",
+            "data": sec_bar,
+            "description": f"Cross-metric aggregation of {secondary_num} across {primary_cat}.",
+            "width": "half"
+        })
+
+    # Chart 14: Secondary Metric Histogram
+    if secondary_num:
+        hist2_info = profile.get("columns", {}).get(secondary_num, {}).get("stats", {}).get("histogram", [])
+        if hist2_info:
+            hist2_data = [{"name": h["bin"], "value": h["count"]} for h in hist2_info]
+            charts.append({
+                "id": "chart_secondary_distribution_histogram",
+                "title": f"{secondary_num.replace('_', ' ')} Density Distribution",
+                "type": "bar",
+                "x_column": secondary_num,
+                "y_column": "count",
+                "aggregation": "count",
+                "data": hist2_data,
+                "description": f"Frequency distribution across value buckets for {secondary_num}.",
                 "width": "half"
             })
 

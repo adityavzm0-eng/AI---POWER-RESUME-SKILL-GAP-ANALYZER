@@ -4,8 +4,14 @@ dist-ssr
 *.local
 .env
 .env.*
-.DS_Store
-__pycache__
+*.env
+backend/.env
+*.db
+*.sqlite
+*.sqlite3
+.venv/
+__pycache__/
 *.pyc
+.DS_Store
 instance/
 .vscode/

@@ -1,153 +1,135 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   LayoutDashboard,
-  BarChart3,
-  Table,
-  Lightbulb,
-  Bot,
+  FileSearch,
+  Radar,
+  Milestone,
+  FileEdit,
+  Layers,
+  History,
+  Settings,
   ChevronLeft,
   ChevronRight,
-  Database,
   ShieldCheck,
-  Activity,
-  Layers
+  Home
 } from 'lucide-react';
-import { useDashboard } from '../context/DashboardContext';
 
-export const Sidebar: React.FC = () => {
-  const { activeTab, setActiveTab, dataset } = useDashboard();
-  const [collapsed, setCollapsed] = useState(false);
+interface SidebarProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  collapsed: boolean;
+  onToggleCollapse: () => void;
+  hasAnalysis: boolean;
+}
 
+export const Sidebar: React.FC<SidebarProps> = ({
+  activeTab,
+  onTabChange,
+  collapsed,
+  onToggleCollapse,
+  hasAnalysis,
+}) => {
   const navItems = [
-    {
-      id: 'dashboard',
-      label: 'Executive Dashboard',
-      icon: LayoutDashboard,
-      badge: dataset?.dashboard?.charts?.length ? `${dataset.dashboard.charts.length} Charts` : null
-    },
-    {
-      id: 'profiling',
-      label: 'Data Profiling & Quality',
-      icon: BarChart3,
-      badge: dataset?.profile?.dataset_health?.score ? `${dataset.profile.dataset_health.score}%` : null
-    },
-    {
-      id: 'explorer',
-      label: 'Data Grid & Explorer',
-      icon: Table,
-      badge: dataset?.row_count ? `${dataset.row_count.toLocaleString()}` : null
-    },
-    {
-      id: 'insights',
-      label: 'AI Insights & Anomalies',
-      icon: Lightbulb,
-      badge: 'AI'
-    },
-    {
-      id: 'copilot',
-      label: 'InsightAI Copilot',
-      icon: Bot,
-      badge: 'Chat'
-    }
+    { id: 'landing', label: 'Home / Welcome', icon: Home },
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'analyzer', label: 'Resume Analyzer', icon: FileSearch, badge: 'Main' },
+    { id: 'results', label: 'Skill Gap Intelligence', icon: Radar, disabled: !hasAnalysis },
+    { id: 'roadmap', label: 'Career Roadmap', icon: Milestone, disabled: !hasAnalysis },
+    { id: 'studio', label: 'Improvement Studio', icon: FileEdit, disabled: !hasAnalysis },
+    { id: 'jobs', label: 'Job Match Studio', icon: Layers },
+    { id: 'history', label: 'Analysis History', icon: History },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   return (
     <aside
-      className={`relative flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all duration-300 z-20 ${
+      className={`relative z-20 flex flex-col justify-between transition-all duration-300 ease-in-out border-r border-slate-800/80 bg-[#0B0F19]/95 backdrop-blur-xl ${
         collapsed ? 'w-16' : 'w-64'
       }`}
     >
-      {/* Collapse Toggle Button */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-5 w-6 h-6 rounded-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 shadow flex items-center justify-center text-slate-500 hover:text-indigo-500 transition-colors z-30"
-        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      >
-        {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-      </button>
-
-      {/* Navigation Links */}
-      <div className="flex-1 py-4 px-2 space-y-1">
-        <div className={`px-3 py-1 mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 ${collapsed ? 'hidden' : 'block'}`}>
-          Analytics Workspace
-        </div>
-
+      {/* Top Navigation Links */}
+      <div className="p-3 space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
+          const isDisabled = item.disabled;
 
           return (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id as any)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
+              disabled={isDisabled}
+              onClick={() => onTabChange(item.id)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group relative ${
                 isActive
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-gradient-to-r from-cyan-500/15 via-blue-500/15 to-violet-500/15 text-cyan-400 border border-cyan-500/30 shadow-lg shadow-cyan-500/5'
+                  : isDisabled
+                  ? 'opacity-40 cursor-not-allowed text-slate-500'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
               }`}
               title={collapsed ? item.label : undefined}
             >
               <Icon
-                className={`w-4 h-4 shrink-0 transition-transform ${
-                  isActive ? 'text-white' : 'text-slate-400 group-hover:text-indigo-400 group-hover:scale-110'
+                className={`w-5 h-5 flex-shrink-0 transition-transform ${
+                  isActive
+                    ? 'text-cyan-400 scale-105'
+                    : 'text-slate-400 group-hover:text-slate-200'
                 }`}
               />
+
               {!collapsed && (
                 <div className="flex items-center justify-between flex-1 truncate">
                   <span className="truncate">{item.label}</span>
                   {item.badge && (
-                    <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-medium ${
-                        isActive
-                          ? 'bg-indigo-700 text-indigo-100'
-                          : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                      }`}
-                    >
+                    <span className="ml-auto text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">
                       {item.badge}
                     </span>
                   )}
+                  {isDisabled && (
+                    <span className="ml-auto text-[10px] text-slate-600">
+                      Run analysis
+                    </span>
+                  )}
                 </div>
+              )}
+
+              {/* Active glow pip */}
+              {isActive && (
+                <div className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r bg-cyan-400 shadow-glow" />
               )}
             </button>
           );
         })}
       </div>
 
-      {/* Bottom Dataset Quick Details */}
-      {!collapsed && dataset && (
-        <div className="p-3 m-2 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-xs">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-              <Database className="w-3.5 h-3.5 text-indigo-400" />
-              Active Schema
-            </span>
-            <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded font-mono font-bold">
-              READY
-            </span>
+      {/* Bottom Privacy & Collapse Control */}
+      <div className="p-3 border-t border-slate-800/80 space-y-2">
+        {!collapsed && (
+          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400">
+            <div className="flex items-center gap-1.5 text-slate-300 font-medium mb-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Privacy Guaranteed</span>
+            </div>
+            <p className="text-[10px] text-slate-500 leading-relaxed">
+              Resumes are parsed securely in local memory. Raw files are not retained permanently.
+            </p>
           </div>
+        )}
 
-          <div className="space-y-1 text-[11px] text-slate-500 dark:text-slate-400">
-            <div className="flex justify-between">
-              <span>Records</span>
-              <span className="font-semibold text-slate-700 dark:text-slate-200 font-mono">
-                {dataset.row_count.toLocaleString()}
-              </span>
+        <button
+          onClick={onToggleCollapse}
+          className="w-full flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? (
+            <ChevronRight className="w-4 h-4" />
+          ) : (
+            <div className="flex items-center gap-2 text-xs text-slate-400 hover:text-slate-300">
+              <ChevronLeft className="w-4 h-4" />
+              <span>Collapse Sidebar</span>
             </div>
-            <div className="flex justify-between">
-              <span>Dimensions</span>
-              <span className="font-semibold text-slate-700 dark:text-slate-200 font-mono">
-                {dataset.col_count}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Data Quality</span>
-              <span className="font-semibold text-emerald-600 dark:text-emerald-400 font-mono">
-                {dataset.profile?.dataset_health?.score}%
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
+          )}
+        </button>
+      </div>
     </aside>
   );
 };

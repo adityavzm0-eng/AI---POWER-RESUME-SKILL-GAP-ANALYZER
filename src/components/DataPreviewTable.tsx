@@ -14,7 +14,7 @@ import { useDashboard } from '../context/DashboardContext';
 import * as api from '../services/api';
 
 export const DataPreviewTable: React.FC = () => {
-  const { dataset, filters, getCsvExportUrl } = useDashboard();
+  const { dataset, filters } = useDashboard();
   const [rows, setRows] = useState<any[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [totalPages, setTotalPages] = useState(1);

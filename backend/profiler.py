@@ -23,25 +23,10 @@ def infer_column_type(series: pd.Series, col_name: str, total_rows: int) -> str:
         if len(unique_vals) <= 2:
             return "boolean"
             
-    # Check Identifier (Must have ID in name or be string/object with unique keys, never continuous float metrics!)
-    is_numeric = pd.api.types.is_numeric_dtype(series)
-    is_float = pd.api.types.is_float_dtype(series)
-    id_keywords = ["_id", "id", "uuid", "guid", "code", "key", "account_num", "order_id", "emp_id", "patient_id"]
-    has_id_keyword = any(k in col_lower for k in id_keywords)
-    
-    if has_id_keyword and not is_float:
-        if len(unique_vals) >= total_rows * 0.80:
-            return "id"
-            
-    if not is_numeric and len(unique_vals) == total_rows and len(unique_vals) > 10 and not is_float:
-        if not any(m in col_lower for m in ["sales", "profit", "amount", "revenue", "price", "cost", "salary"]):
-            return "id"
-        
-    # Check Date/Time
+    # Check Date/Time first so date strings with unique values are not misidentified as IDs
     if pd.api.types.is_datetime64_any_dtype(series):
         return "date"
     if valid_series.dtype == object or isinstance(valid_series.iloc[0], str):
-        # Quick check for date-like strings
         sample = valid_series.head(50)
         date_keywords = ["date", "time", "day", "created_at", "updated_at", "timestamp", "year", "month"]
         likely_date_name = any(k in col_lower for k in date_keywords)
@@ -55,6 +40,22 @@ def infer_column_type(series: pd.Series, col_name: str, total_rows: int) -> str:
                     return "date"
         except Exception:
             pass
+
+    # Check Identifier (Must have ID in name or be string/object with unique keys, never continuous float metrics!)
+    is_numeric = pd.api.types.is_numeric_dtype(series)
+    is_float = pd.api.types.is_float_dtype(series)
+    id_keywords = ["_id", "id", "uuid", "guid", "code", "key", "account_num", "order_id", "emp_id", "patient_id"]
+    has_id_keyword = any(k in col_lower for k in id_keywords)
+    
+    if has_id_keyword and not is_float:
+        if len(unique_vals) >= total_rows * 0.80:
+            return "id"
+            
+    if not is_numeric and len(unique_vals) == total_rows and len(unique_vals) > 10 and not is_float:
+        date_keywords = ["date", "time", "day", "created_at", "updated_at", "timestamp", "year", "month"]
+        if not any(k in col_lower for k in date_keywords):
+            if not any(m in col_lower for m in ["sales", "profit", "amount", "revenue", "price", "cost", "salary"]):
+                return "id" 
 
     # Check Numerical
     if pd.api.types.is_numeric_dtype(series):
